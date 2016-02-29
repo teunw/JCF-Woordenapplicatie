@@ -57,27 +57,30 @@ public class WoordenController implements Initializable {
     @FXML
     private TextArea taOutput;
 
+    private Parser parser;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         taInput.setText(DEFAULT_TEXT);
+        parser = new Parser();
     }
 
     @FXML
     private void aantalAction(ActionEvent event) {
-        String[] words = Parser.getWords(taInput.getText());
+        String[] words = parser.getWords(taInput.getText());
         taOutput.setText(String.valueOf(words.length));
     }
 
     @FXML
     private void sorteerAction(ActionEvent event) {
         taOutput.clear();
-        Parser.getUniqueWords(taInput.getText()).forEach(this::outputLine);
+        parser.getUniqueWords(taInput.getText()).forEach(this::outputLine);
     }
 
     @FXML
     private void frequentieAction(ActionEvent event) {
         Map<String, Integer> frequenties = new TreeMap<>();
-        for (String str : Parser.getWords(taInput.getText())) {
+        for (String str : parser.getWords(taInput.getText())) {
             if (frequenties.containsKey(str)) {
                 int i = frequenties.get(str);
                 frequenties.put(str, i + 1);
@@ -93,7 +96,13 @@ public class WoordenController implements Initializable {
 
     @FXML
     private void concordatieAction(ActionEvent event) {
+        StringBuilder concordantieString = new StringBuilder();
 
+        TreeMap<String, Set<Integer>> concordantie = (TreeMap<String, Set<Integer>>) parser.getConcordantie(taInput.getText());
+        for (String key : concordantie.keySet()) {
+            concordantieString.append(String.format("%s : %s\n", key, concordantie.get(key)));
+        }
+        taOutput.setText(concordantieString.toString());
     }
 
     public void outputLine(String line) {
